@@ -64,8 +64,10 @@ while True:
 
 
     
-    elif user_choice.startswith("ls"):
+    elif user_choice.startswith("ls") and len(user_list) == 1:  # and len(user_choicer) in case user enters ls blah
         clientSocket.send("ls".encode())
+        sizeLs = recvAll(clientSocket, 10)
+        print(recvAll(clientSocket, int(sizeLs)), "\n")
 
     elif user_choice.startswith("put"):
         clientSocket.send(user_choice.encode())

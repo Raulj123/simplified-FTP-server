@@ -1,5 +1,6 @@
 from socket import *
 import sys
+import subprocess
 
 # Retrieve port num
 if len(sys.argv) == 2:
@@ -53,7 +54,15 @@ while True:
            conn.send(noFile.encode())
        
    elif data.startswith("ls"):
-       continue
+        res = subprocess.getstatusoutput("ls")[1]
+        size = str(len(res))
+        
+        while len(size) < 10:
+            size = "0" + size
+
+        conn.send((size + res).encode())
+       
+
        
    elif data.startswith("put"):
        continue
