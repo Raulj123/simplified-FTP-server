@@ -84,7 +84,7 @@ while True:
 
             clientSocket.sendall(fileData)
 
-            ack = recvAll(clientSocket, 10)
+            ack = recvAll(clientSocket, 3)
             if ack == "ACK":
                 print(f"File '{filename}' sent successfully.")
             else:
@@ -94,9 +94,9 @@ while True:
             print("File not found.")
         except Exception as e:
             print(f"Error occurred: {e}")
-        
-        continue
 
+        continue
+        
     elif user_choice.startswith("exit"):
         break
     else:
