@@ -69,8 +69,33 @@ while True:
         sizeLs = recvAll(clientSocket, 10)
         print(recvAll(clientSocket, int(sizeLs)), "\n")
 
-    elif user_choice.startswith("put"):
-        clientSocket.send(user_choice.encode())
+    elif user_choice.startswith("put") and len(user_list) == 2:
+        try:
+            filename = user_list[1]
+
+            with open(filename, "rb") as file:
+                fileData = file.read()
+
+            clientSocket.send(user_choice.encode())
+
+            fileSize = len(fileData)
+            fileSizeStr = str(fileSize).zfill(10)  
+            clientSocket.send(fileSizeStr.encode())
+
+            clientSocket.sendall(fileData)
+
+            ack = recvAll(clientSocket, 10)
+            if ack == "ACK":
+                print(f"File '{filename}' sent successfully.")
+            else:
+                print("Error: Server did not acknowledge the file transfer.")
+
+        except FileNotFoundError:
+            print("File not found.")
+        except Exception as e:
+            print(f"Error occurred: {e}")
+        
+        continue
 
     elif user_choice.startswith("exit"):
         break
