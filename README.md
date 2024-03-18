@@ -3,6 +3,7 @@
 ## Group members
 
 - Raul Jarquin Valdez (jarquinr121@csu.fullerton.edu)
+- Anthony Jarjour (anthjar@csu.fullerton.edu)
 
 ## Usage
 
