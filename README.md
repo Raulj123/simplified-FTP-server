@@ -4,6 +4,9 @@
 
 - Raul Jarquin Valdez (jarquinr121@csu.fullerton.edu)
 - Anthony Jarjour (anthjar@csu.fullerton.edu)
+- Hoang Nguyen (hnguyen1193@csu.fullerton.edu)
+- Gerrit VanderStoel (gvanderstoel29@csu.fullerton.edu)
+- Brandon Bilandzia (bbilandzia@csu.fullerton.edu) 
 
 ## Usage
 
