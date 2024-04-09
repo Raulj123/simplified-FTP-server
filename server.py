@@ -20,38 +20,57 @@ print("Server ready \n")
 conn, addy = serverSocket.accept()
 print(f"Client connection at socket: {addy[1]} \n")
 
+def ephemeralPort(controlSock):
+    serverSock = socket(AF_INET, SOCK_STREAM)
+    # Bind to port, picks an available port
+    serverSock.bind(('', 0))
+
+    dataPort = serverSock.getsockname()[1]
+    print(f"Data Socket Port: {dataPort}")
+    controlSock.send(str(dataPort).encode())
+
+    serverSock.listen(1)
+
+    dataSock, addr = serverSock.accept()	
+
+    # Send the socket back
+    return dataSock
+
+
+
 while True:
     data = conn.recv(3000).decode()
 
     if data.startswith("get"):
-        fileName = data[4:]
+        fileName = data[4:].strip()
         try:
-            with open(fileName, "r") as file:
+            print(f"name of file: {fileName}")
+            with open(fileName, "rb") as file:
                 numSent = 0
                 fileData = None
 
                 while True:
                     fileData = file.read(65536)
-
-                    if fileData:
-                        size = str(len(fileData))
-                        while len(size) < 10:
-                            size = "0" + size
+                    
+                    
+                    size = str(len(fileData))
+                    while len(size) < 10:
+                        size = "0" + size
                         
-                        fileData = size + fileData
-                        numSent = 0
+                    size = size.encode()
+                    fileData = size + fileData
+                    numSent = 0
 
-                        while len(fileData) > numSent:
-                            numSent += conn.send(fileData[numSent:].encode())
-                    else:
-                        break
-            
-            print(f"Sent file of size: {size}")
-            
-        except FileNotFoundError:
-            print("File not found")
+                    dataSock = ephemeralPort(conn)
+
+                    while len(fileData) > numSent:
+                        numSent += dataSock.send(fileData[numSent:])
+                    print("SUCCESS: file sent")
+        except Exception as e:
+            print("FAILURE: File not found")
             noFile = "0" * 10
-            conn.send(noFile.encode())
+            dataSock = ephemeralPort(conn)
+            dataSock.send(noFile.encode())
        
        
     elif data.startswith("ls"):
@@ -61,7 +80,10 @@ while True:
         while len(size) < 10:
             size = "0" + size
 
-        conn.send((size + res).encode())
+        try:
+            conn.send((size + res).encode())
+        except error as e:
+            print("FAILURE")
 
     elif data.startswith("put"):
         try:
@@ -82,10 +104,10 @@ while True:
 
             conn.send("ACK".encode())
 
-            print(f"Received file '{filename}' from client")
+            print(f"SUCCESS: Received file '{filename}' from client")
 
         except Exception as e:
-            print(f"Error occurred while receiving file: {e}")
+            print(f"FAILURE: Error occurred while receiving file: {e}")
 
 
     else:

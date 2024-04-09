@@ -18,8 +18,6 @@ def recvAll(sock, numBytes):
 	# The buffer
 	recvBuff = ""
 	
-	# The temporary buffer
-	tmpBuff = ""
 	
 	# Keep receiving till all is received
 	while len(recvBuff) < numBytes:
@@ -36,7 +34,13 @@ def recvAll(sock, numBytes):
 	
 	return recvBuff
 
+def connectDataSock(controlSock):
+    dataPort = controlSock.recv(1024).decode()
+   
+    dataSock = socket(AF_INET, SOCK_STREAM)
+    dataSock.connect((server, int(dataPort)))
 
+    return dataSock
 
 # main loop 
 while True:
@@ -47,19 +51,24 @@ while True:
         # send data to get file 
         clientSocket.send(user_choice.encode())
 
+        dataSock = connectDataSock(clientSocket)
+
         fileData = ""                   # buffer to store all data
         fileSize = 0                    # Size of incomming file
         fileSizeBuff = ""               # Buffer with file size
 
-        fileSizeBuff = recvAll(clientSocket, 10)        # first 10 bytes contain file size
+        fileSizeBuff = recvAll(dataSock, 10)        # first 10 bytes contain file size
         
+
         if fileSizeBuff.count("0") == 10:
-             print("File does not exist \n")
+            print("File does not exist \n")
+            pass
         else:
              fileSize = int(fileSizeBuff)
+             print(f"File name is:  {user_choice} \n")
              print(f"File size is {fileSize} \n")
 
-             fileData = recvAll(clientSocket, fileSize)     # contains rest of file
+             fileData = recvAll(dataSock, fileSize)     # contains rest of file
              print(f"File data: \n {fileData} \n")
 
 
@@ -81,6 +90,9 @@ while True:
             fileSize = len(fileData)
             fileSizeStr = str(fileSize).zfill(10)  
             clientSocket.send(fileSizeStr.encode())
+            
+            print(f"filename: {filename}")
+            print(f"number of bytes transferred: {fileSizeStr}")
 
             clientSocket.sendall(fileData)
 
